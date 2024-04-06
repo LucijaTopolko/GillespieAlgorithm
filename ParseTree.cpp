@@ -7,7 +7,7 @@ using namespace std;
 
 struct Node {
     string name;
-    double length;
+    double length{};
     vector<Node> elements;
 };
 
@@ -15,18 +15,18 @@ class NewickParser {
 public:
     Node parse(const string& newickString) {
         size_t index = 0;
-        return parseHelper(newickString, index, true);
+        return parseHelper(newickString, index);
     }
 
 private:
-    Node parseHelper(const string& newickString, size_t& index, bool isMainRoot) {
+    Node parseHelper(const string &newickString, size_t &index) {
         Node node;
 
         while (index < newickString.size()) {
             char currentChar = newickString[index];
             if (currentChar == '(') {
                 index++;
-                node.elements.push_back(parseHelper(newickString, index, false));
+                node.elements.push_back(parseHelper(newickString, index));
             } else if (currentChar == ')') {
                 index++;
                 string nodeName;
