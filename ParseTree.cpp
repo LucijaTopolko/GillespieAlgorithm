@@ -1,3 +1,7 @@
+//
+// Created by Lucija Topolko on 06/04/2024.
+//
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -81,9 +85,9 @@ void dfs(const Node &node, int depth = 0)
 }
 
 
-int main() {
+int parseTree(const string& filename) {
     string tree;
-    ifstream file("tree.nwk");
+    ifstream file(filename);
     getline(file, tree);
     file.close();
 
