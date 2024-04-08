@@ -2,6 +2,9 @@
 // Created by Lucija Topolko on 06/04/2024.
 //
 
+#ifndef PARSE_TREE_H
+#define PARSE_TREE_H
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -12,6 +15,7 @@ using namespace std;
 struct Node {
     string name;
     double length{};
+    string sequence;
     vector<Node> elements;
 };
 
@@ -85,7 +89,7 @@ void dfs(const Node &node, int depth = 0)
 }
 
 
-int parseTree(const string& filename) {
+Node parseTree(const string& filename) {
     string tree;
     ifstream file(filename);
     getline(file, tree);
@@ -94,7 +98,7 @@ int parseTree(const string& filename) {
     NewickParser parser;
     Node root = parser.parse(tree);
 
-    dfs(root.elements.front());
-
-    return 0;
+    return root.elements.front();
 }
+
+#endif // PARSE_TREE_H
