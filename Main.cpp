@@ -4,13 +4,20 @@
 
 #include <iostream>
 #include <string>
-#include "ParseTree.cpp"
+#include "ParseTree.h"
+#include "Simulator.h"
 
 using namespace std;
 
 string filename = "tree.nwk";
+string rootDNA = "TACCCAACCTCACAGCCATCAGGGCGGCGGATGAGCATGTCCTCCAGATGCCCATACGTCAGCTATCGTACACCGGTCTCCGAGCCCCAGCAGCTCTTCG";
 
 int main() {
-    parseTree(filename);
+    Node root = parseTree(filename);
+    //dfs(root);
+
+    root.sequence = rootDNA;
+
+    simulateSequences(root);
     return 0;
 }
