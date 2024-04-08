@@ -6,11 +6,14 @@
 #include <string>
 #include "ParseTree.h"
 #include "Simulator.h"
+#include "JukesCantor.h"
+#include "Kimura.h"
 
 using namespace std;
 
 string filename = "tree.nwk";
 string rootDNA = "TACCCAACCTCACAGCCATCAGGGCGGCGGATGAGCATGTCCTCCAGATGCCCATACGTCAGCTATCGTACACCGGTCTCCGAGCCCCAGCAGCTCTTCG";
+string MODE = "JC"; // ili K
 
 int main() {
     Node root = parseTree(filename);
@@ -18,6 +21,21 @@ int main() {
 
     root.sequence = rootDNA;
 
-    simulateSequences(root);
+    double* rateMatrix;
+    double* frequencies;
+
+    if (MODE == "JC") {
+        JukesCantor model;
+        rateMatrix = model.getRatematrix();
+        frequencies = model.getFrequencies();
+    } else if (MODE == "K") {
+        Kimura model;
+        rateMatrix = model.getRatematrix();
+        frequencies = model.getFrequencies();
+    } else {
+        exit(0);
+    }
+
+    simulateSequences(root, rateMatrix, frequencies);
     return 0;
 }
