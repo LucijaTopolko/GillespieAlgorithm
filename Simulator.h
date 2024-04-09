@@ -69,9 +69,10 @@ private:
                         positionProbability.push_back(1);
                     }
                 }
-                int position = choose(positionProbability) + 1; // provjeri jel tu ide +1
+                positionProbability.push_back(1);
+                int position = choose(positionProbability);
 
-                int j = chooseLength(insertionRate);
+                int j = chooseLength(0.3);
 
                 vector<double> stateProbability;
                 for (int i = 0; i < 4; i++) {
@@ -94,6 +95,34 @@ private:
                 D += deletionRate * j;
 
             } else if (mutation == 3) { //deletion
+
+                int j = chooseLength(0.3);
+
+                vector<double> positionProbability;
+                for (int i = 0; i<=Y.length()-j; i++) {
+                    int index = getIndex(Y[i]);
+                    if (index == -1){
+                        positionProbability.push_back(0);
+                    } else {
+                        positionProbability.push_back(1);
+                    }
+                }
+                int position = choose(positionProbability);
+
+                int i = 0;
+                double sum = 0;
+                while (i < j) {
+                    if (Y[position+i] != '-') {
+                        int index = getIndex(Y[position+i]);
+                        Y[position+i] = '-';
+                        i++;
+                        sum += rateMatrix[index*4+index];
+                    }
+                }
+
+                S += sum;
+                I -= insertionRate * j;
+                D -= deletionRate * j;
 
             }
             M = S + I + D;
