@@ -79,12 +79,19 @@ private:
                 }
 
                 string sequence;
+                double minus = 0;
                 for (int i = 0; i < j; i++)  {
-                    char state = "ACGT"[choose(stateProbability)];
+                    int s = choose(stateProbability);
+                    char state = "ACGT"[s];
                     sequence.push_back(state);
+                    minus += rateMatrix[s*4+s];
                 }
 
                 Y.insert(position, sequence);
+
+                S -= minus;
+                I += insertionRate * j;
+                D += deletionRate * j;
 
             } else if (mutation == 3) { //deletion
 
@@ -139,7 +146,7 @@ private:
         }
     }
 
-    static double supstitutionRate(const string &X, const double *rateMatrix, double *frequencies) {
+    static double supstitutionRate(const string &X, const double *rateMatrix, const double *frequencies) {
         double S = 0;
         double qi[4];
         for (int i = 0; i < 4; i++) {
