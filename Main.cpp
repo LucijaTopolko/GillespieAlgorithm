@@ -13,7 +13,7 @@ using namespace std;
 
 string filename = "tree.nwk";
 string rootDNA = "TACCCAACCTCACAGCCATCAGGGCGGCGGATGAGCATGTCCTCCAGATGCCCATACGTCAGCTATCGTACACCGGTCTCCGAGCCCCAGCAGCTCTTCG";
-string MODE = "JC"; // ili K
+string MODE = "K"; // ili K
 
 int main() {
     Node root = parseTree(filename);
