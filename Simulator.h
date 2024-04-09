@@ -26,43 +26,65 @@ private:
 
     string simulateHelper(const string &X, double *rateMatrix, double *frequencies, double t){
         double S = supstitutionRate(X, rateMatrix, frequencies);
-        double D = (double)X.length() * deletionRate;
         double I = (double)(X.length() + 1) * insertionRate;
+        double D = (double)X.length() * deletionRate;
         double M = S + I + D;
 
         string Y = X;
-        cout << Y<<endl;
         double w = generateWaitingTime(M);
 
         while (w <= t) {
             int mutation = chooseMutation(S/M, I/M, D/M);
-            cout << "Mutation: "<<mutation<<endl;
             if (mutation == 1) { //substitution
-                    vector<double> positionProbability;
-                    for (char c : Y) {
-                        int index = getIndex(c);
-                        if (index == -1){
-                            positionProbability.push_back(0);
-                        } else {
-                            positionProbability.push_back(rateMatrix[index*4+index]/S);
-                        }
+                vector<double> positionProbability;
+                for (char c : Y) {
+                    int index = getIndex(c);
+                    if (index == -1){
+                        positionProbability.push_back(0);
+                    } else {
+                        positionProbability.push_back(rateMatrix[index*4+index]/S);
                     }
-                    int position = choose(positionProbability);
-                    char y = Y[position];
+                }
+                int position = choose(positionProbability);
+                char y = Y[position];
 
-                    vector<double> stateProbability;
-                    for (int i = 0; i<4; i++ ) {
-                        if (i == getIndex(Y[position])) {
-                            stateProbability.push_back(0);
-                        } else {
-                            stateProbability.push_back(rateMatrix[getIndex(y)*4 + i] / rateMatrix[getIndex(y)*4 + getIndex(y)]);
-                        }
+                vector<double> stateProbability;
+                for (int i = 0; i<4; i++ ) {
+                    if (i == getIndex(Y[position])) {
+                        stateProbability.push_back(0);
+                    } else {
+                        stateProbability.push_back(rateMatrix[getIndex(y)*4 + i] / rateMatrix[getIndex(y)*4 + getIndex(y)]);
                     }
-                    char z = "ACGT"[choose(stateProbability)];
-                    cout << Y[position] << " " << z << endl;
-                    Y[position] = z;
-                    S += rateMatrix[getIndex(y)*4 + getIndex(y)] - rateMatrix[getIndex(z)*4 + getIndex(z)];
+                }
+                char z = "ACGT"[choose(stateProbability)];
+                Y[position] = z;
+                S += rateMatrix[getIndex(y)*4 + getIndex(y)] - rateMatrix[getIndex(z)*4 + getIndex(z)];
             } else if (mutation == 2) { //insertion
+                vector<double> positionProbability;
+                for (char c : Y) {
+                    int index = getIndex(c);
+                    if (index == -1){
+                        positionProbability.push_back(0);
+                    } else {
+                        positionProbability.push_back(1);
+                    }
+                }
+                int position = choose(positionProbability) + 1; // provjeri jel tu ide +1
+
+                int j = chooseLength(insertionRate);
+
+                vector<double> stateProbability;
+                for (int i = 0; i < 4; i++) {
+                    stateProbability.push_back(rateMatrix[i]);
+                }
+
+                string sequence;
+                for (int i = 0; i < j; i++)  {
+                    char state = "ACGT"[choose(stateProbability)];
+                    sequence.push_back(state);
+                }
+
+                Y.insert(position, sequence);
 
             } else if (mutation == 3) { //deletion
 
@@ -88,6 +110,12 @@ private:
         mt19937 gen(rng());
         discrete_distribution<int> positionDistribution(probability.begin(), probability.end());
         return positionDistribution(gen);
+    }
+
+    int chooseLength(double mean) {
+        mt19937 gen(rng());
+        geometric_distribution<int> lengthDistribution(mean);
+        return lengthDistribution(gen);
     }
 
     double generateWaitingTime(double M){
