@@ -16,6 +16,8 @@ using namespace std;
 class Simulator {
 public:
 
+    map<string, string> sequences = {};
+
     string simulate(const string &X, double *rateMatrix, double *frequencies, const double t) {
         return simulateHelper(X, rateMatrix, frequencies, t);
     }
@@ -97,6 +99,11 @@ private:
                 }
 
                 Y.insert(position, sequence);
+
+                for ( auto &oldnode : sequences ) {
+                    string gaps(j, '-');
+                    oldnode.second.insert(position, gaps);
+                }
 
                 S -= minus;
                 I += insertionRate * j;
@@ -200,51 +207,44 @@ private:
         }
         return S;
     }
-
-
 };
-
-void dfs(Node &node, double *rateMatrix, double *frequencies, int depth);
 
 Simulator simulator;
 
-map<string, string> sequences = {};
+void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) { // NOLINT(*-no-recursion)
 
-void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
-
-    sequences[node.name] = node.sequence;
+    string Y = simulator.simulate(node.parentSequence, rateMatrix, frequencies, node.length);
+    simulator.sequences[node.name] = Y;
+    node.sequence = Y;
+    //cout << Y << endl;
 
     for (auto &child : node.elements)
     {
-        child.parentSequence = node.sequence;
+        child.parentSequence = simulator.sequences[node.name];
+        dfs(child, rateMatrix, frequencies, depth + 1);
+    }
+
+}
+
+void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
+
+    simulator.sequences[node.name] = node.sequence;
+
+    for (auto &child : node.elements)
+    {
+        child.parentSequence = simulator.sequences[node.name];
         dfs(child, rateMatrix, frequencies, 0);
     }
 
     ofstream file;
     file.open("output.fasta");
 
-    for ( const auto &oldnode : sequences ) {
+    for ( const auto &oldnode : simulator.sequences ) {
         file << ">" << oldnode.first << "\n";
         file << oldnode.second << "\n";
     }
 
     file.close();
-
-}
-
-
-void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) { // NOLINT(*-no-recursion)
-
-    string Y = simulator.simulate(node.parentSequence, rateMatrix, frequencies, node.length);
-    sequences[node.name] = Y;
-    node.sequence = Y;
-    cout << Y << endl;
-
-    for (auto &child : node.elements)
-    {
-        child.parentSequence = node.sequence;
-        dfs(child, rateMatrix, frequencies, depth + 1);
-    }
 
 }
 
