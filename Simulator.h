@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include <random>
+#include <map>
 #include "ParseTree.h"
 
 using namespace std;
@@ -35,6 +36,7 @@ private:
 
         while (w <= t) {
             int mutation = chooseMutation(S/M, I/M, D/M);
+            cout<<mutation;
             if (mutation == 1) { //substitution
                 vector<double> positionProbability;
                 for (char c : Y) {
@@ -97,7 +99,6 @@ private:
             } else if (mutation == 3) { //deletion
 
                 int j = chooseLength(0.3);
-
                 vector<double> positionProbability;
                 for (int i = 0; i<=Y.length()-j; i++) {
                     int index = getIndex(Y[i]);
@@ -118,8 +119,8 @@ private:
                         i++;
                         sum += rateMatrix[index*4+index];
                     }
+                    i++;
                 }
-
                 S += sum;
                 I -= insertionRate * j;
                 D -= deletionRate * j;
@@ -128,8 +129,9 @@ private:
             M = S + I + D;
             t = t - w;
             w = generateWaitingTime(M);
-            cout<<Y<<endl;
+            // cout<<Y<<endl;
         }
+        cout << endl;
 
         return Y;
     }
@@ -197,9 +199,48 @@ private:
 
 };
 
-void simulateSequences(const Node &root, double *rateMatrix, double *frequencies) {
-    Simulator simulator;
-    simulator.simulate(root.sequence, rateMatrix, frequencies, root.length);
+void dfs(Node &node, double *rateMatrix, double *frequencies, int depth);
+
+Simulator simulator;
+
+map<string, string> sequences = {};
+
+void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
+
+    sequences[node.name] = node.sequence;
+
+    for (auto &child : node.elements)
+    {
+        child.parentSequence = node.sequence;
+        dfs(child, rateMatrix, frequencies, 0);
+    }
+
+    ofstream file;
+    file.open("output.fasta");
+
+    for ( const auto &node : sequences ) {
+        file << ">" << node.first << "\n";
+        file << node.second << "\n";
+    }
+
+    file.close();
+
+}
+
+
+void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) {
+
+    string Y = simulator.simulate(node.parentSequence, rateMatrix, frequencies, node.length);
+    sequences[node.name] = Y;
+    node.sequence = Y;
+    cout << Y << endl;
+
+    for (auto &child : node.elements)
+    {
+        child.parentSequence = node.sequence;
+        dfs(child, rateMatrix, frequencies, depth + 1);
+    }
+
 }
 
 #endif //SIMULATOR_H

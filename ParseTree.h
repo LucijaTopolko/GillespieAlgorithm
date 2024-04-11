@@ -16,6 +16,7 @@ struct Node {
     string name;
     double length{};
     string sequence;
+    string parentSequence;
     vector<Node> elements;
 };
 
@@ -74,20 +75,6 @@ private:
         return node;
     }
 };
-
-void dfs(const Node &node, int depth = 0)
-{
-    for (int i = 0; i < depth; ++i)
-    {
-        cout << "  ";
-    }
-    cout << node.name << " "<< node.length << endl;
-    for (const auto &child : node.elements)
-    {
-        dfs(child, depth + 1);
-    }
-}
-
 
 Node parseTree(const string& filename) {
     string tree;
