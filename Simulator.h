@@ -27,16 +27,22 @@ private:
 
     string simulateHelper(const string &X, double *rateMatrix, double *frequencies, double t){
         double S = supstitutionRate(X, rateMatrix, frequencies);
-        double I = (double)(X.length() + 1) * insertionRate;
-        double D = (double)X.length() * deletionRate;
-        double M = S + I + D;
 
+        int length = 0;
+        for (char c : X) {
+            if (c != '-') {
+                length++;
+            }
+        }
+
+        double I = (length + 1) * insertionRate;
+        double D = length * deletionRate;
+        double M = S + I + D;
         string Y = X;
         double w = generateWaitingTime(M);
 
         while (w <= t) {
             int mutation = chooseMutation(S/M, I/M, D/M);
-            cout<<mutation;
             if (mutation == 1) { //substitution
                 vector<double> positionProbability;
                 for (char c : Y) {
@@ -74,7 +80,7 @@ private:
                 positionProbability.push_back(1);
                 int position = choose(positionProbability);
 
-                int j = chooseLength(0.3);
+                int j = chooseLength();
 
                 vector<double> stateProbability;
                 for (int i = 0; i < 4; i++) {
@@ -98,7 +104,7 @@ private:
 
             } else if (mutation == 3) { //deletion
 
-                int j = chooseLength(0.3);
+                int j = chooseLength();
                 vector<double> positionProbability;
                 for (int i = 0; i<=Y.length()-j; i++) {
                     int index = getIndex(Y[i]);
@@ -129,9 +135,8 @@ private:
             M = S + I + D;
             t = t - w;
             w = generateWaitingTime(M);
-            // cout<<Y<<endl;
+            //cout<<w<<endl;
         }
-        cout << endl;
 
         return Y;
     }
@@ -150,7 +155,7 @@ private:
         return positionDistribution(gen);
     }
 
-    int chooseLength(double mean) {
+    int chooseLength(double mean = 0.3) {
         mt19937 gen(rng());
         geometric_distribution<int> lengthDistribution(mean);
         return lengthDistribution(gen);
@@ -179,7 +184,7 @@ private:
 
     static double supstitutionRate(const string &X, const double *rateMatrix, const double *frequencies) {
         double S = 0;
-        double qi[4];
+        double qi[4] = {0,0,0,0};
         for (int i = 0; i < 4; i++) {
             for (int j = 0; j < 4; j++) {
                 if (i!=j) {
@@ -218,9 +223,9 @@ void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
     ofstream file;
     file.open("output.fasta");
 
-    for ( const auto &node : sequences ) {
-        file << ">" << node.first << "\n";
-        file << node.second << "\n";
+    for ( const auto &oldnode : sequences ) {
+        file << ">" << oldnode.first << "\n";
+        file << oldnode.second << "\n";
     }
 
     file.close();
@@ -228,7 +233,7 @@ void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
 }
 
 
-void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) {
+void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) { // NOLINT(*-no-recursion)
 
     string Y = simulator.simulate(node.parentSequence, rateMatrix, frequencies, node.length);
     sequences[node.name] = Y;
