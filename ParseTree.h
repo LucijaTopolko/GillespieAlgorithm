@@ -14,7 +14,7 @@ using namespace std;
 
 struct Node {
     string name;
-    double length{};
+    double length;
     string sequence;
     string parentSequence;
     vector<Node> elements;
@@ -39,7 +39,7 @@ private:
             } else if (currentChar == ')') {
                 index++;
                 string nodeName;
-                while (index < newickString.size() && newickString[index] != ',' && newickString[index] != ')' && newickString[index] != '(' && newickString[index] != ':') {
+                while (index < newickString.size() && newickString[index] != ',' && newickString[index] != ')' && newickString[index] != '(' && newickString[index] != ':' && newickString[index] != ';') {
                     nodeName += newickString[index];
                     index++;
                 }
@@ -50,7 +50,7 @@ private:
                     index++;
                 }
                 node.name = nodeName;
-                node.length = stod(length);
+                node.length = length.empty() ? 0 : stod(length);
                 return node;
             } else if (currentChar == ',' || currentChar == ':') {
                 index++;
@@ -62,7 +62,7 @@ private:
                 }
                 index++;
                 string length;
-                while (index < newickString.size() && newickString[index] != ',' && newickString[index] != ')' && newickString[index] != '(') {
+                while (index < newickString.size() && newickString[index] != ',' && newickString[index] != ')' && newickString[index] != '(' && newickString[index] != ';') {
                     length += newickString[index];
                     index++;
                 }
