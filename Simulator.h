@@ -16,6 +16,9 @@ using namespace std;
 class Simulator {
 public:
 
+    double const deletionRate = 0.01;
+    double const insertionRate = 0.01;
+
     map<string, string> sequences = {};
 
     string simulate(const string &X, double *rateMatrix, double *frequencies, const double t) {
@@ -23,8 +26,6 @@ public:
     }
 
 private:
-    double deletionRate = 0.1;
-    double insertionRate = 0.1;
     random_device rng;
 
     string simulateHelper(const string &X, double *rateMatrix, double *frequencies, double t){
@@ -86,7 +87,7 @@ private:
 
                 vector<double> stateProbability;
                 for (int i = 0; i < 4; i++) {
-                    stateProbability.push_back(rateMatrix[i]);
+                    stateProbability.push_back(rateMatrix[i*4+i]);
                 }
 
                 string sequence;
@@ -100,10 +101,10 @@ private:
 
                 Y.insert(position, sequence);
 
-                for ( auto &oldnode : sequences ) {
+                /*for ( auto &oldnode : sequences ) {
                     string gaps(j, '-');
                     oldnode.second.insert(position, gaps);
-                }
+                }*/
 
                 S -= minus;
                 I += insertionRate * j;
@@ -125,7 +126,7 @@ private:
 
                 int i = 0;
                 double sum = 0;
-                while (i < j) {
+                while (i < j && i < Y.length()) {
                     if (Y[position+i] != '-') {
                         int index = getIndex(Y[position+i]);
                         Y[position+i] = '-';
@@ -143,8 +144,9 @@ private:
             t = t - w;
             w = generateWaitingTime(M);
             //cout<<w<<endl;
+            //cout << Y << endl;
         }
-
+        //cout << endl;
         return Y;
     }
 
@@ -216,7 +218,6 @@ void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) { 
     string Y = simulator.simulate(node.parentSequence, rateMatrix, frequencies, node.length);
     simulator.sequences[node.name] = Y;
     node.sequence = Y;
-    //cout << Y << endl;
 
     for (auto &child : node.elements)
     {
@@ -226,9 +227,22 @@ void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) { 
 
 }
 
+void printdfs(Node &node, ofstream &file) {
+    if (node.name!= "") {
+        file << ">" << node.name << endl;
+        file << node.sequence << endl;
+    }
+    for (auto &child : node.elements) {
+        printdfs(child, file);
+    }
+}
+
 void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
 
     simulator.sequences[node.name] = node.sequence;
+
+    ofstream file;
+    file.open("output.fasta");
 
     for (auto &child : node.elements)
     {
@@ -236,16 +250,11 @@ void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
         dfs(child, rateMatrix, frequencies, 0);
     }
 
-    ofstream file;
-    file.open("output.fasta");
-
-    for ( const auto &oldnode : simulator.sequences ) {
-        file << ">" << oldnode.first << "\n";
-        file << oldnode.second << "\n";
-    }
+    printdfs(node, file);
 
     file.close();
 
 }
+
 
 #endif //SIMULATOR_H
