@@ -227,10 +227,23 @@ void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) { 
 
 }
 
+bool canBeParsedToDouble(const std::string& str) {
+    try {
+        std::stod(str);
+        return true;
+    } catch (const std::invalid_argument&) {
+        return false;
+    } catch (const std::out_of_range&) {
+        return false;
+    }
+}
+
 void printdfsaligned(ofstream &file) {
     for (auto el : simulator.sequences) {
-        file << ">" << el.first  << endl;
-        file << el.second << endl;
+        if (el.first!="" && !canBeParsedToDouble(el.first)) {
+            file << ">" << el.first  << endl;
+            file << el.second << endl;
+        }
     }
 }
 
