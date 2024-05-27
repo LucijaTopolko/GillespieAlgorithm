@@ -101,10 +101,10 @@ private:
 
                 Y.insert(position, sequence);
 
-                /*for ( auto &oldnode : sequences ) {
+                for ( auto &oldnode : sequences ) {
                     string gaps(j, '-');
                     oldnode.second.insert(position, gaps);
-                }*/
+                }
 
                 S -= minus;
                 I += insertionRate * j;
@@ -227,8 +227,15 @@ void dfs (Node &node, double *rateMatrix, double *frequencies, int depth = 0) { 
 
 }
 
+void printdfsaligned(ofstream &file) {
+    for (auto el : simulator.sequences) {
+        file << ">" << el.first  << endl;
+        file << el.second << endl;
+    }
+}
+
 void printdfs(Node &node, ofstream &file) {
-    if (node.name!= "") {
+    if (!node.name.empty()) {
         file << ">" << node.name << endl;
         file << node.sequence << endl;
     }
@@ -251,7 +258,11 @@ void simulateSequences(Node &node, double *rateMatrix, double *frequencies) {
     }
 
     printdfs(node, file);
+    file.close();
 
+    ofstream fileAligned;
+    fileAligned.open("output_aligned.fasta");
+    printdfsaligned(fileAligned);
     file.close();
 
 }
