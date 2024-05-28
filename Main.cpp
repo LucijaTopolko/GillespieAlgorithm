@@ -23,7 +23,7 @@ SIZE_T GetMemoryUsage() {
 string filename = "10.nwk";
 string rootDNA = "";
 string MODE = "JC"; // JC ili K
-
+int sequenceLength = 1000;
 
 int main() {
     auto start = chrono::high_resolution_clock::now();
@@ -53,7 +53,7 @@ int main() {
     discrete_distribution<> d(frequencies, frequencies + 4);
 
     if (rootDNA.empty()) {
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < sequenceLength; ++i) {
             int index = d(gen);
             rootDNA += bases[index];
         }
