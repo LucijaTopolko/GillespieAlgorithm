@@ -20,7 +20,7 @@ SIZE_T GetMemoryUsage() {
     return pmc.PrivateUsage;
 }
 
-string filename = "10.nwk";
+string filename = "tree.nwk";
 string rootDNA = "";
 string MODE = "JC"; // JC ili K
 int sequenceLength = 1000;

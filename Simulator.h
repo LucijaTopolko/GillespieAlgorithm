@@ -164,7 +164,7 @@ private:
         return positionDistribution(gen);
     }
 
-    int chooseLength(double mean = 0.3) {
+    int chooseLength(double mean = 0.5) {
         mt19937 gen(rng());
         geometric_distribution<int> lengthDistribution(mean);
         return lengthDistribution(gen);
@@ -240,7 +240,7 @@ bool canBeParsedToDouble(const std::string& str) {
 
 void printdfsaligned(ofstream &file) {
     for (auto el : simulator.sequences) {
-        if (el.first!="" && !canBeParsedToDouble(el.first)) {
+        if (el.first!="" && !canBeParsedToDouble(el.first) || 1) {
             file << ">" << el.first  << endl;
             file << el.second << endl;
         }
